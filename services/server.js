@@ -9,15 +9,18 @@ var server = undefined;
 const escapeSequence = new Uint8Array([0xE2, 0x90, 0x84]);
 
 function control(socket, header){
-    //si le 
     if (header.headerType == 'authentificate'){
-        if (clients.getById(header.recID).connect()){
-
-            socket.id = header.recID;
-            return null;
-        }
-        else{
-            return {type: 'err', msg: 'Invalid ID'};
+        if (header.id){
+            if (header.id == "none"){
+                var registered = clients.registerClient().id;
+                socket.id = registered.id;
+                return registered;
+            }
+            else if (clients.getById(header.id)){
+                clients.getById(header.id).connect();
+                return null;
+            }
+            else return {type: "err", msg:"Invalid id provided"};
         }
     }
 }
